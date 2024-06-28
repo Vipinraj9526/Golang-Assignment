@@ -39,7 +39,7 @@ func GetRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 			}
 			c.JSON(http.StatusOK, response)
 		})
-		v1Routes.POST(constants.GetEmployees, getEmployeesController.GetEmployeesHandler)
+		v1Routes.POST(constants.GetEmployee, getEmployeesController.GetEmployeesHandler)
 		v1Routes.DELETE(constants.DeleteEmployee, deleteEmployeeController.DeleteEmployeeDetailsHandler)
 		v1Routes.PATCH(constants.UpdateEmployee, updateEmployeeController.UpdateEmployeeDetailsHandler)
 	}
