@@ -50,6 +50,9 @@ func (employeeRepository *employeeRepository) ReadEmployeeWithCondition(ctx cont
 	if result.Error != nil {
 		return nil, result.Error
 	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New("no rows found")
+	}
 	return &employees, nil
 }
 

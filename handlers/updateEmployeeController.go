@@ -26,6 +26,8 @@ func (controller *UpdateEmployeeDetailsController) UpdateEmployeeDetailsHandler(
 	err = controller.service.UpdateEmployeeDetails(ctx, request)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
+		return
+
 	}
 	ctx.JSON(http.StatusOK, "Updated Successfully")
 }

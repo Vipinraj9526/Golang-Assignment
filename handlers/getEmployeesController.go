@@ -25,7 +25,12 @@ func (controller *GetEmployeesController) GetEmployeesHandler(ctx *gin.Context) 
 	}
 	employee, err := controller.service.GetEmployees(ctx, request)
 	if err != nil {
+		if err.Error() == "no rows found" {
+			ctx.JSON(http.StatusNotFound, err)
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, err)
+		return
 	}
 	ctx.JSON(http.StatusOK, employee)
 }
