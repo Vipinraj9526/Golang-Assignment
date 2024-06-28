@@ -2,31 +2,17 @@ package excel
 
 import (
 	"context"
+	"data-manage/models"
+	"data-manage/utils/mysql"
+	"data-manage/utils/redis"
 	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
 	"time"
 
-	"data-manage/utils/mysql"
-	"data-manage/utils/redis"
-
 	"github.com/xuri/excelize/v2"
 )
-
-// Data struct represents the data structure for each row in the Excel file
-type Employee struct {
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	CompanyName string `json:"company_name"`
-	Address     string `json:"address"`
-	City        string `json:"city"`
-	County      string `json:"county"`
-	Postal      string `json:"postal"`
-	Phone       string `json:"phone"`
-	Email       string `json:"email"`
-	Web         string `json:"web"`
-}
 
 // ImportDataFromExcel imports data from an Excel file into MySQL and caches it in Redis using email as the primary key
 func ImportDataFromExcel(filename string, sheetName string) error {
@@ -45,6 +31,10 @@ func ImportDataFromExcel(filename string, sheetName string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get rows from sheet '%s' in Excel file: %v", sheetName, err)
 	}
+
+	// Initialize MySQL and Redis clients
+	mysqlClient := mysql.GetMySQLClient()
+	redisClient := redis.GetRedisClient()
 
 	// Skip the first row as it contains headings
 	rows = rows[1:]
@@ -72,7 +62,7 @@ func ImportDataFromExcel(filename string, sheetName string) error {
 			web := row[9]
 
 			// Create Data struct and append to slice
-			newData := Employee{
+			newData := models.Employee{
 				FirstName:   firstName,
 				LastName:    lastName,
 				CompanyName: companyName,
@@ -85,12 +75,8 @@ func ImportDataFromExcel(filename string, sheetName string) error {
 				Web:         web,
 			}
 
-			// Initialize MySQL and Redis clients
-			mysqlClient := mysql.GetMySQLClient()
-			redisClient := redis.GetRedisClient()
-
 			// Store in MySQL using email as primary key
-			err := mysqlClient.GormDB.Where(Employee{Email: email}).Assign(newData).FirstOrCreate(&Employee{}).Error
+			err := mysqlClient.GormDB.Where(models.Employee{Email: email}).Assign(newData).FirstOrCreate(&models.Employee{}).Error
 			if err != nil {
 				log.Printf("Failed to store data '%+v' in MySQL: %v", newData, err)
 				return

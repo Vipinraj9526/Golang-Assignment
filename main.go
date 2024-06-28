@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"data-manage/commons/constants"
+	"data-manage/router"
 	"data-manage/utils/excel"
 	"data-manage/utils/mysql"
 	"data-manage/utils/redis"
+	"fmt"
 	"log"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -30,14 +31,14 @@ func main() {
 		log.Fatal("Error importing data from Excel:", err)
 	}
 
-	// Start the router
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
-	startRouter(router)
+	startRouter(ctx)
 }
-func startRouter(router *gin.Engine) {
-	err := router.Run(":8080")
+
+func startRouter(ctx context.Context) {
+	router := router.GetRouter()
+	err := router.Run(fmt.Sprintf(":%d", constants.PortDefaultValue))
 	if err != nil {
-		log.Fatalf("Failed to start the router: %v", err)
 	}
+	fmt.Println(fmt.Sprintf("Server is running on port %d", constants.PortDefaultValue))
+
 }
